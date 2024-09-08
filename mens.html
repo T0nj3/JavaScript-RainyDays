@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mens jackets</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://kit.fontawesome.com/c208c464c3.js" crossorigin="anonymous"></script>
+    <script src="mens.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="left">
+            <a href="index.html">
+            <p><button id="filter-all">All</button></p>
+        </a>
+            <a href="mens.html">
+            <p><button id="filter-men">Men</button></p>
+        </a>
+        <a href="womens.html">
+            <p><button id="filter-women">Women</button></p>
+        </a>
+        </div>
+        <div class="middle">
+            <a href="index.html">
+                <img src="IMAGES/Bilde1.png" alt="">
+            </a>
+        </div>
+        <div class="right">
+            <div id="cart-icon-container">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
+            <div id="cart-dropdown" class="hidden">
+                <div class="Cart-text">
+                    <p>Cart</p>
+                </div>
+                <button id="close-dropdown" class="close-button">×</button>
+                <div id="cart-items"></div>
+                <div id="cart-total">Your cart is empty.</div>
+                <a id="go-to-cart" href="cart.html" class="hidden">Go to Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Mens jackets</h1>
+        <div id="products"></div>
+        <div id="loading" class="hidden">Loading...</div>
+    </main>
+
+    <footer>
+        <div class="left1">
+            <p><b>Get to know us</b></p>
+        </div>
+        <div class="middle1">
+            <p><b>Help</b></p>
+        </div>
+        <div class="right1">
+            <p><b>Contact</b></p>
+        </div>
+        <div class="right2">
+            <p><b>FOLLOW US</b></p>
+        </div>
+    </footer>
+</body>
+</html>
