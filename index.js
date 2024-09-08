@@ -43,9 +43,7 @@ async function processProducts() {
     if (data && data.data) {
         const products = data.data;
         displayProducts(products);
-    } else {
-        console.log("No data available");
-    }
+    } 
 }
 
 function displayProducts(products) {
@@ -235,3 +233,5 @@ function filterProducts(category) {
         displayProducts(products);
     });
 }
+
+

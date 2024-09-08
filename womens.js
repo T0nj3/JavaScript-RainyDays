@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading');
 
     cartIconContainer.addEventListener('click', () => {
-        console.log('Cart icon clicked'); 
         cartDropdown.classList.toggle('hidden');
         updateDropdown(); 
     });
@@ -32,10 +31,8 @@ async function getDataAsyncAwait() {
             throw new Error('Network response was not ok');
         }
         const json = await response.json();
-        console.log('API data:', json); 
         return json;
     } catch (error) {
-        console.error('Fetch error:', error);
         document.getElementById('products').innerHTML = "<p>Could not load products. Please try again later.</p>";
     } finally {
         const loadingIndicator = document.getElementById('loading');
@@ -48,12 +45,9 @@ async function getDataAsyncAwait() {
 async function processProducts(gender) {
     const data = await getDataAsyncAwait();
     if (data && data.data) {
-        console.log('Products before filtering:', data.data); 
         const products = data.data.filter(product => product.gender === gender);
-        console.log('Filtered products:', products); 
         displayProducts(products);
     } else {
-        console.log("No data available");
     }
 }
 
@@ -227,4 +221,16 @@ function removeFromCart(index) {
     localStorage.setItem('cart', JSON.stringify(cart));
     updateDropdown();
     updateCartCount();
+}
+
+function showToast(message) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastMessage = document.getElementById('toast-message');
+
+    toastMessage.textContent = message;  
+    toastContainer.classList.add('show');  
+
+    setTimeout(() => {
+        toastContainer.classList.remove('show');
+    }, 3000);  
 }

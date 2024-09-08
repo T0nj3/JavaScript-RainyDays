@@ -31,7 +31,7 @@ async function getDataAsyncAwait() {
             throw new Error('Network response was not ok');
         }
         const json = await response.json();
-        console.log('API data:', json);  
+         
         return json;
     } catch (error) {
         console.error('Fetch error:', error);
@@ -49,12 +49,10 @@ async function getDataAsyncAwait() {
 async function processProducts(gender) {
     const data = await getDataAsyncAwait();
     if (data && data.data) {
-        console.log('Products before filtering:', data.data); 
         const products = data.data.filter(product => product.gender === gender);
-        console.log('Filtered products:', products); 
         displayProducts(products);
     } else {
-        console.log("No data available");
+        
     }
 }
 
@@ -225,3 +223,6 @@ function removeFromCart(index) {
     updateDropdown();
     updateCartCount();
 }
+
+
+toast

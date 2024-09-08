@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const purchasedProductsContainer = document.getElementById('purchased-products');
+    if (!purchasedProductsContainer) {
+        console.error('Element with id "purchased-products" not found.');
+        return;
+    }
+
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
     if (cart.length === 0) {
@@ -11,13 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const image = document.createElement('img');
             image.src = item.image.url;
-            image.alt = item.image.alt;
+            image.alt = item.image.alt || 'Product image';
+            image.style.width = '100px'; 
             productDiv.appendChild(image);
 
             const detailsDiv = document.createElement('div');
 
             const title = document.createElement('h3');
-            title.textContent = item.title;
+            title.textContent = `${item.title} (Size: ${item.size || 'N/A'})`; 
             detailsDiv.appendChild(title);
 
             const quantity = document.createElement('p');
@@ -33,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             purchasedProductsContainer.appendChild(productDiv);
         });
 
-       
-        localStorage.removeItem('cart');
+        
+        
     }
 });

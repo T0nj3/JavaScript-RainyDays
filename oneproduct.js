@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const productId = new URLSearchParams(window.location.search).get('id');
     if (productId) {
         fetchProductDetails(productId);
-    } else {
-        console.error('No product ID found in URL');
     }
 
     const cartIconContainer = document.getElementById('cart-icon-container');
@@ -11,15 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDropdownButton = document.getElementById('close-dropdown');
 
     cartIconContainer.addEventListener('click', () => {
-        cartDropdown.classList.toggle('hidden');   
-        updateDropdown(); 
+        cartDropdown.classList.toggle('hidden');
+        updateDropdown();
     });
 
     closeDropdownButton.addEventListener('click', () => {
         cartDropdown.classList.add('hidden');
     });
 
-    updateCartCount(); 
+    updateCartCount();
 });
 
 const API_RAINYDAYS_URL = "https://v2.api.noroff.dev/rainy-days";
@@ -31,10 +29,10 @@ async function fetchProductDetails(id) {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        const product = data.data; 
+        const product = data.data;
         displayProductDetails(product);
     } catch (error) {
-        console.error('Fetch error:', error);
+        console.error('Error fetching product details:', error);
     }
 }
 
@@ -63,19 +61,41 @@ function displayProductDetails(product) {
     }
     productDetailsContainer.appendChild(price);
 
+    // Legg til valg for størrelse
+    const sizeLabel = document.createElement('label');
+    sizeLabel.textContent = "Select Size:";
+    productDetailsContainer.appendChild(sizeLabel);
+
+    const sizeSelect = document.createElement('select');
+    sizeSelect.id = 'size-select';
+    product.sizes.forEach(size => {
+        const sizeOption = document.createElement('option');
+        sizeOption.value = size;
+        sizeOption.textContent = size;
+        sizeSelect.appendChild(sizeOption);
+    });
+    productDetailsContainer.appendChild(sizeSelect);
+
     const addToCartButton = document.createElement('button');
     addToCartButton.textContent = 'Add to Cart';
-    addToCartButton.onclick = () => addToCart(product);
+    addToCartButton.onclick = () => {
+        const selectedSize = sizeSelect.value;
+        if (!selectedSize) {
+            alert("Please select a size.");
+            return;
+        }
+        addToCart(product, selectedSize);
+    };
     productDetailsContainer.appendChild(addToCartButton);
 }
 
-function addToCart(product) {
+function addToCart(product, selectedSize) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    const existingProductIndex = cart.findIndex(item => item.id === product.id && item.size === selectedSize);
     if (existingProductIndex > -1) {
         cart[existingProductIndex].quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, size: selectedSize, quantity: 1 });
     }
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
@@ -116,7 +136,7 @@ function updateDropdown() {
         itemDetails.classList.add('item-details');
 
         const title = document.createElement('h4');
-        title.textContent = item.title;
+        title.textContent = `${item.title} (Size: ${item.size})`;
         itemDetails.appendChild(title);
 
         const quantityControls = document.createElement('div');
@@ -124,7 +144,6 @@ function updateDropdown() {
 
         const decreaseButton = document.createElement('button');
         decreaseButton.textContent = "-";
-        decreaseButton.classList.add('quantity-button');
         decreaseButton.onclick = () => changeQuantity(index, -1);
         quantityControls.appendChild(decreaseButton);
 
@@ -134,7 +153,6 @@ function updateDropdown() {
 
         const increaseButton = document.createElement('button');
         increaseButton.textContent = "+";
-        increaseButton.classList.add('quantity-button');
         increaseButton.onclick = () => changeQuantity(index, 1);
         quantityControls.appendChild(increaseButton);
 
