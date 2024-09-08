@@ -61,7 +61,6 @@ function displayProductDetails(product) {
     }
     productDetailsContainer.appendChild(price);
 
-    // Legg til valg for størrelse
     const sizeLabel = document.createElement('label');
     sizeLabel.textContent = "Select Size:";
     productDetailsContainer.appendChild(sizeLabel);
@@ -99,6 +98,7 @@ function addToCart(product, selectedSize) {
     }
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
+    showToast(`${product.title} (Size: ${selectedSize}) has been added to the cart`);
 }
 
 function updateCartCount() {
@@ -202,4 +202,17 @@ function removeFromCart(index) {
     localStorage.setItem('cart', JSON.stringify(cart));
     updateDropdown();
     updateCartCount();
+}
+
+
+function showToast(message) {
+    const toastContainer = document.getElementById('toast-container');
+    const toastMessage = document.getElementById('toast-message');
+
+    toastMessage.textContent = message;
+    toastContainer.classList.add('show');
+
+    setTimeout(() => {
+        toastContainer.classList.remove('show');
+    }, 3000);
 }

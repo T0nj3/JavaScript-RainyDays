@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
         cartDropdown.classList.toggle('hidden');
         updateDropdown(); 
     });
-    
+
     closeDropdownButton.addEventListener('click', () => {
         cartDropdown.classList.add('hidden');
     });
 
-    processProducts("Female"); 
+    processProducts('Female');
     updateCartCount(); 
 });
 
@@ -33,6 +33,7 @@ async function getDataAsyncAwait() {
         const json = await response.json();
         return json;
     } catch (error) {
+        console.error('Fetch error:', error);
         document.getElementById('products').innerHTML = "<p>Could not load products. Please try again later.</p>";
     } finally {
         const loadingIndicator = document.getElementById('loading');
@@ -47,18 +48,12 @@ async function processProducts(gender) {
     if (data && data.data) {
         const products = data.data.filter(product => product.gender === gender);
         displayProducts(products);
-    } else {
     }
 }
 
 function displayProducts(products) {
     const productsContainer = document.getElementById('products');
     productsContainer.innerHTML = '';
-
-    if (products.length === 0) {
-        productsContainer.innerHTML = '<p>No products available.</p>'; 
-        return;
-    }
 
     products.forEach(product => {
         const productDiv = document.createElement('div');
@@ -81,29 +76,60 @@ function displayProducts(products) {
         }
         productDiv.appendChild(price);
 
+        const sizeLabel = document.createElement('label');
+        sizeLabel.textContent = 'Select Size:';
+        productDiv.appendChild(sizeLabel);
+
+        const sizeSelect = document.createElement('select');
+        product.sizes.forEach(size => {
+            const sizeOption = document.createElement('option');
+            sizeOption.value = size;
+            sizeOption.textContent = size;
+            sizeSelect.appendChild(sizeOption);
+        });
+        productDiv.appendChild(sizeSelect);
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('product-button-container');
+
+        const viewDetailsButton = document.createElement('a');
+        viewDetailsButton.href = `oneproduct.html?id=${product.id}`;
+        viewDetailsButton.textContent = "View Details";
+        viewDetailsButton.classList.add('view-details');
+        buttonContainer.appendChild(viewDetailsButton);
+
+        productDiv.appendChild(buttonContainer);
+
         const addToCartButton = document.createElement('button');
         addToCartButton.textContent = 'Add to Cart';
         addToCartButton.classList.add('add-to-cart-button');
-        addToCartButton.onclick = () => addToCart(product);
+        addToCartButton.onclick = () => {
+            const selectedSize = sizeSelect.value;
+            if (!selectedSize) {
+                alert("Please select a size.");
+                return;
+            }
+            addToCart(product, selectedSize);
+        };
         productDiv.appendChild(addToCartButton);
 
         productsContainer.appendChild(productDiv);
     });
 }
 
-function addToCart(product) {
+function addToCart(product, selectedSize) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    const existingProductIndex = cart.findIndex(item => item.id === product.id && item.size === selectedSize);
     if (existingProductIndex > -1) {
         cart[existingProductIndex].quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, size: selectedSize, quantity: 1 });
     }
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
     updateDropdown();
 
-    showToast(`${product.title} has been added to the cart`);
+    showToast(`${product.title} (Size: ${selectedSize}) has been added to the cart`);
 }
 
 function showToast(message) {
@@ -115,7 +141,7 @@ function showToast(message) {
 
     setTimeout(() => {
         toastContainer.classList.remove('show');
-    }, 3000);  
+    }, 3000);
 }
 
 function updateCartCount() {
@@ -153,29 +179,12 @@ function updateDropdown() {
         itemDetails.classList.add('item-details');
 
         const title = document.createElement('h4');
-        title.textContent = item.title;
+        title.textContent = `${item.title} (Size: ${item.size})`;
         itemDetails.appendChild(title);
-
-        const quantityControls = document.createElement('div');
-        quantityControls.classList.add('quantity-controls');
-
-        const decreaseButton = document.createElement('button');
-        decreaseButton.textContent = "-";
-        decreaseButton.classList.add('quantity-button');
-        decreaseButton.onclick = () => changeQuantity(index, -1);
-        quantityControls.appendChild(decreaseButton);
 
         const quantityDisplay = document.createElement('span');
         quantityDisplay.textContent = `Quantity: ${item.quantity}`;
-        quantityControls.appendChild(quantityDisplay);
-
-        const increaseButton = document.createElement('button');
-        increaseButton.textContent = "+";
-        increaseButton.classList.add('quantity-button');
-        increaseButton.onclick = () => changeQuantity(index, 1);
-        quantityControls.appendChild(increaseButton);
-
-        itemDetails.appendChild(quantityControls);
+        itemDetails.appendChild(quantityDisplay);
 
         const price = document.createElement('p');
         const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
@@ -184,11 +193,6 @@ function updateDropdown() {
         itemDetails.appendChild(price);
 
         cartItem.appendChild(itemDetails);
-
-        const removeButton = document.createElement('button');
-        removeButton.textContent = "Remove";
-        removeButton.onclick = () => removeFromCart(index);
-        cartItem.appendChild(removeButton);
 
         cartItemsContainer.appendChild(cartItem);
     });
@@ -201,36 +205,4 @@ function updateDropdown() {
     } else {
         goToCartButton.classList.remove('hidden');
     }
-}
-
-function changeQuantity(index, change) {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const item = cart[index];
-    item.quantity += change;
-    if (item.quantity <= 0) {
-        cart.splice(index, 1);
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateDropdown();
-    updateCartCount();
-}
-
-function removeFromCart(index) {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cart.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateDropdown();
-    updateCartCount();
-}
-
-function showToast(message) {
-    const toastContainer = document.getElementById('toast-container');
-    const toastMessage = document.getElementById('toast-message');
-
-    toastMessage.textContent = message;  
-    toastContainer.classList.add('show');  
-
-    setTimeout(() => {
-        toastContainer.classList.remove('show');
-    }, 3000);  
 }

@@ -72,6 +72,19 @@ function displayProducts(products) {
         productDiv.appendChild(price);
 
         
+        const sizeLabel = document.createElement('label');
+        sizeLabel.textContent = 'Select Size:';
+        productDiv.appendChild(sizeLabel);
+
+        const sizeSelect = document.createElement('select');
+        product.sizes.forEach(size => {
+            const sizeOption = document.createElement('option');
+            sizeOption.value = size;
+            sizeOption.textContent = size;
+            sizeSelect.appendChild(sizeOption);
+        });
+        productDiv.appendChild(sizeSelect);
+
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('product-button-container');
 
@@ -86,27 +99,33 @@ function displayProducts(products) {
         const addToCartButton = document.createElement('button');
         addToCartButton.textContent = 'Add to Cart';
         addToCartButton.classList.add('add-to-cart-button');
-        addToCartButton.onclick = () => addToCart(product);
+        addToCartButton.onclick = () => {
+            const selectedSize = sizeSelect.value;
+            if (!selectedSize) {
+                alert("Please select a size.");
+                return;
+            }
+            addToCart(product, selectedSize);
+        };
         productDiv.appendChild(addToCartButton);
 
         productsContainer.appendChild(productDiv);
     });
 }
 
-function addToCart(product) {
+function addToCart(product, selectedSize) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    const existingProductIndex = cart.findIndex(item => item.id === product.id && item.size === selectedSize);
     if (existingProductIndex > -1) {
         cart[existingProductIndex].quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, size: selectedSize, quantity: 1 });
     }
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
     updateDropdown();
 
-    
-    showToast(`${product.title} has been added to the cart`);
+    showToast(`${product.title} (Size: ${selectedSize}) has been added to the cart`);
 }
 
 function showToast(message) {
@@ -116,7 +135,6 @@ function showToast(message) {
     toastMessage.textContent = message;  
     toastContainer.classList.add('show');  
 
-   
     setTimeout(() => {
         toastContainer.classList.remove('show');
     }, 3000);
@@ -157,7 +175,7 @@ function updateDropdown() {
         itemDetails.classList.add('item-details');
 
         const title = document.createElement('h4');
-        title.textContent = item.title;
+        title.textContent = `${item.title} (Size: ${item.size})`;
         itemDetails.appendChild(title);
 
         const quantityControls = document.createElement('div');
@@ -233,5 +251,3 @@ function filterProducts(category) {
         displayProducts(products);
     });
 }
-
-
